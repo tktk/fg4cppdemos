@@ -212,6 +212,8 @@ def _configureLibpath( _context ):
         libpath,
     )
 
+    _context.env.LIBPATH = libpath
+
 def _configureDefines( _context ):
     defines = []
 

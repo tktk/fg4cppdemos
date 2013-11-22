@@ -3,7 +3,7 @@
 from .. import common
 from ..builder import buildShlib
 
-TARGET = 'helloworld'
+TARGET = 'window_close'
 
 def build( _context ):
     sources = {
@@ -14,8 +14,13 @@ def build( _context ):
         },
     }
 
+    libraries = {
+        'gf-window',
+    }
+
     buildShlib(
         _context,
         TARGET,
         sources = sources,
+        libraries = libraries,
     )
