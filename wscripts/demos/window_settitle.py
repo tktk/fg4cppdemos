@@ -16,6 +16,7 @@ def build( _context ):
 
     libraries = {
         'gf4cpp-window',
+        'gf-string',
     }
 
     buildShlib(
