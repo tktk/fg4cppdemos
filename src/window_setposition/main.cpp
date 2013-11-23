@@ -50,10 +50,7 @@ void notifyEnd(
 }
 
 gf::WindowEventHandlers * newWindowEventHandlers(
-    gf::Int &                   _x
-    , gf::Int &                 _y
-    , std::mutex &              _mutexForPosition
-    , gf::Bool &                _ended
+    gf::Bool &                  _ended
     , std::mutex &              _mutex
     , std::condition_variable & _cond
 )
@@ -85,69 +82,40 @@ gf::WindowEventHandlers * newWindowEventHandlers(
         }
     );
 
-    gf::setMouseMotionEventHandler(
-        eventHandlers
-        , [
-            &_x
-            , &_y
-            , &_mutexForPosition
-        ]
-        (
-            gf::Window &    _window
-            , gf::Int       _newX
-            , gf::Int       _newY
-        )
-        {
-            printf(
-                "gf::Window motion[ %d x %d ]\n"
-                , _newX
-                , _newY
-            );
-
-            std::unique_lock< std::mutex >  lock( _mutexForPosition );
-
-            _x = _newX;
-            _y = _newY;
-        }
-    );
-
     gf::setMouseButtonEventHandler(
         eventHandlers
-        , [
-            &_x
-            , &_y
-            , &_mutexForPosition
-        ]
-        (
+        , [](
             gf::Window &    _window
-            , gf::ULong
+            , gf::ULong     _index
             , gf::Bool      _pressed
+            , gf::Int       _x
+            , gf::Int       _y
         )
         {
+            std::printf(
+                "gf::Window button[ %llu, %s, %d x %d ]\n"
+                , _index
+                , _pressed
+                    ? "press"
+                    : "release"
+                , _x
+                , _y
+            );
+
             if( _pressed != false ) {
                 return;
             }
 
-            gf::Int x;
-            gf::Int y;
-
-            {
-                std::unique_lock< std::mutex >  lock( _mutexForPosition );
-
-                x = _x;
-                y = _y;
-            }
-
             std::printf(
                 "gf::setPosition() [ %d x %d ]\n"
-                , x
-                , y
+                , _x
+                , _y
             );
 
             gf::setPosition(
                 _window
-                , x
-                , y
+                , _x
+                , _y
             );
         }
     );
@@ -156,22 +124,16 @@ gf::WindowEventHandlers * newWindowEventHandlers(
 }
 
 gf::Window * newWindow(
-    gf::Int &                   _x
-    , gf::Int &                 _y
-    , std::mutex &              _mutexForPosition
-    , gf::Bool &                _ended
-    , std::mutex &              _mutexForEnded
-    , std::condition_variable & _condForEnded
+    gf::Bool &                  _ended
+    , std::mutex &              _mutex
+    , std::condition_variable & _cond
 )
 {
     auto    eventHandlersUnique = gf::unique(
         newWindowEventHandlers(
-            _x
-            , _y
-            , _mutexForPosition
-            , _ended
-            , _mutexForEnded
-            , _condForEnded
+            _ended
+            , _mutex
+            , _cond
         )
     );
     if( eventHandlersUnique.get() == nullptr ) {
@@ -209,22 +171,15 @@ gf::Window * newWindow(
 GFEXPORT gf::Int main(
 )
 {
-    gf::Int     x;
-    gf::Int     y;
-    std::mutex  mutexForPosition;
-
     gf::Bool                ended = false;
-    std::mutex              mutexForEnded;
-    std::condition_variable condForEnded;
+    std::mutex              mutex;
+    std::condition_variable cond;
 
     auto    windowUnique = gf::unique(
         newWindow(
-            x
-            , y
-            , mutexForPosition
-            , ended
-            , mutexForEnded
-            , condForEnded
+            ended
+            , mutex
+            , cond
         )
     );
     if( windowUnique.get() == nullptr ) {
@@ -233,8 +188,8 @@ GFEXPORT gf::Int main(
 
     waitEnd(
         ended
-        , mutexForEnded
-        , condForEnded
+        , mutex
+        , cond
     );
 
     return 0;

@@ -50,10 +50,7 @@ void notifyEnd(
 }
 
 gf::WindowEventHandlers * newWindowEventHandlers(
-    gf::Int &                   _width
-    , gf::Int &                 _height
-    , std::mutex &              _mutexForSize
-    , gf::Bool &                _ended
+    gf::Bool &                  _ended
     , std::mutex &              _mutex
     , std::condition_variable & _cond
 )
@@ -101,69 +98,43 @@ gf::WindowEventHandlers * newWindowEventHandlers(
         }
     );
 
-    gf::setMouseMotionEventHandler(
+    gf::setMouseButtonEventHandler(
         eventHandlers
-        , [
-            &_width
-            , &_height
-            , &_mutexForSize
-        ]
-        (
+        , [](
             gf::Window &    _window
+            , gf::ULong     _index
+            , gf::Bool      _pressed
             , gf::Int       _x
             , gf::Int       _y
         )
         {
-            printf(
-                "gf::Window motion[ %d x %d ]\n"
+            std::printf(
+                "gf::Window button[ %llu, %s, %d x %d ]\n"
+                , _index
+                , _pressed
+                    ? "press"
+                    : "release"
                 , _x
                 , _y
             );
 
-            std::unique_lock< std::mutex >  lock( _mutexForSize );
-
-            _width = _x + 1;
-            _height = _y + 1;
-        }
-    );
-
-    gf::setMouseButtonEventHandler(
-        eventHandlers
-        , [
-            &_width
-            , &_height
-            , &_mutexForSize
-        ]
-        (
-            gf::Window &    _window
-            , gf::ULong
-            , gf::Bool      _pressed
-        )
-        {
             if( _pressed != false ) {
                 return;
             }
 
-            gf::Int width;
-            gf::Int height;
-
-            {
-                std::unique_lock< std::mutex >  lock( _mutexForSize );
-
-                width = _width;
-                height = _height;
-            }
+            const auto  WIDTH = _x + 1;
+            const auto  HEIGHT = _y + 1;
 
             std::printf(
                 "gf::setSize() [ %d x %d ]\n"
-                , width
-                , height
+                , WIDTH
+                , HEIGHT
             );
 
             gf::setSize(
                 _window
-                , width
-                , height
+                , WIDTH
+                , HEIGHT
             );
         }
     );
@@ -172,22 +143,16 @@ gf::WindowEventHandlers * newWindowEventHandlers(
 }
 
 gf::Window * newWindow(
-    gf::Int &                   _width
-    , gf::Int &                 _height
-    , std::mutex &              _mutexForSize
-    , gf::Bool &                _ended
-    , std::mutex &              _mutexForEnded
-    , std::condition_variable & _condForEnded
+    gf::Bool &                  _ended
+    , std::mutex &              _mutex
+    , std::condition_variable & _cond
 )
 {
     auto    eventHandlersUnique = gf::unique(
         newWindowEventHandlers(
-            _width
-            , _height
-            , _mutexForSize
-            , _ended
-            , _mutexForEnded
-            , _condForEnded
+            _ended
+            , _mutex
+            , _cond
         )
     );
     if( eventHandlersUnique.get() == nullptr ) {
@@ -225,22 +190,15 @@ gf::Window * newWindow(
 GFEXPORT gf::Int main(
 )
 {
-    gf::Int     width;
-    gf::Int     height;
-    std::mutex  mutexForSize;
-
     gf::Bool                ended = false;
-    std::mutex              mutexForEnded;
-    std::condition_variable condForEnded;
+    std::mutex              mutex;
+    std::condition_variable cond;
 
     auto    windowUnique = gf::unique(
         newWindow(
-            width
-            , height
-            , mutexForSize
-            , ended
-            , mutexForEnded
-            , condForEnded
+            ended
+            , mutex
+            , cond
         )
     );
     if( windowUnique.get() == nullptr ) {
@@ -249,8 +207,8 @@ GFEXPORT gf::Int main(
 
     waitEnd(
         ended
-        , mutexForEnded
-        , condForEnded
+        , mutex
+        , cond
     );
 
     return 0;

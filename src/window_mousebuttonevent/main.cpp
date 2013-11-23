@@ -88,14 +88,18 @@ gf::WindowEventHandlers * newWindowEventHandlers(
             gf::Window &
             , gf::ULong     _index
             , gf::Bool      _pressed
+            , gf::Int       _x
+            , gf::Int       _y
         )
         {
             std::printf(
-                "gf::Window button[ %llu, %s ]\n"
+                "gf::Window button[ %llu, %s, %d x %d ]\n"
                 , _index
                 , _pressed
                     ? "press"
                     : "release"
+                , _x
+                , _y
             );
         }
     );

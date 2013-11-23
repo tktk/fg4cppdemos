@@ -86,8 +86,10 @@ gf::WindowEventHandlers * newWindowEventHandlers(
         eventHandlers
         , [](
             gf::Window &    _window
-            , gf::ULong     _index
-            , gf::Bool      _pressed
+            , gf::ULong
+            , gf::Bool
+            , gf::Int
+            , gf::Int
         )
         {
             std::printf( "gf::close()\n" );
