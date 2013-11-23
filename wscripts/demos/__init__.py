@@ -12,6 +12,7 @@ from . import window_closerequest
 from . import window_settitle
 from . import window_setposition
 from . import window_setsize
+from . import window_repaint
 
 def build( _context ):
     helloworld.build( _context )
@@ -26,3 +27,4 @@ def build( _context ):
     window_settitle.build( _context )
     window_setposition.build( _context )
     window_setsize.build( _context )
+    window_repaint.build( _context )
