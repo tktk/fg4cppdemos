@@ -10,6 +10,7 @@ from . import window_mousebuttonevent
 from . import window_mousemotionevent
 from . import window_closerequest
 from . import window_settitle
+from . import window_setposition
 
 def build( _context ):
     helloworld.build( _context )
@@ -22,3 +23,4 @@ def build( _context ):
     window_mousemotionevent.build( _context )
     window_closerequest.build( _context )
     window_settitle.build( _context )
+    window_setposition.build( _context )
