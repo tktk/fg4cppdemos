@@ -15,7 +15,7 @@ enum
     HEIGHT = 480,
 };
 
-const auto  TITLE = U"window_close";
+const auto  TITLE = U"window_closeevent";
 
 void waitEnd(
     const gf::Bool &            _ENDED

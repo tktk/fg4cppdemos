@@ -3,7 +3,7 @@
 from .. import common
 from ..builder import buildShlib
 
-TARGET = 'window_close'
+TARGET = 'window_closeevent'
 
 def build( _context ):
     sources = {

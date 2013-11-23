@@ -2,9 +2,9 @@
 
 from . import helloworld
 
-from . import window_close
+from . import window_closeevent
 
 def build( _context ):
     helloworld.build( _context )
 
-    window_close.build( _context )
+    window_closeevent.build( _context )
