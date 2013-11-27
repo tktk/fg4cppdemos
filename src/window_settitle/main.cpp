@@ -1,9 +1,9 @@
-﻿#include "gf/util/export.h"
-#include "gf4cpp/window/eventhandlers.h"
-#include "gf4cpp/window/window.h"
-#include "gf4cpp/string/utf32.h"
-#include "gfpp/common/memory.h"
-#include "gfpp/common/primitives.h"
+﻿#include "fg/util/export.h"
+#include "fg4cpp/window/eventhandlers.h"
+#include "fg4cpp/window/window.h"
+#include "fg4cpp/string/utf32.h"
+#include "fgpp/common/memory.h"
+#include "fgpp/common/primitives.h"
 
 #include <cstdio>
 
@@ -15,29 +15,29 @@ enum
 
 const auto  TITLE = U"window_settitle";
 
-gf::Window * newWindow(
+fg::Window * newWindow(
 )
 {
-    auto    eventHandlersUnique = gf::unique( gf::newWindowEventHandlers() );
+    auto    eventHandlersUnique = fg::unique( fg::newWindowEventHandlers() );
     if( eventHandlersUnique.get() == nullptr ) {
-        std::printf( "gf::newWindowEventHandlers()が失敗\n" );
+        std::printf( "fg::newWindowEventHandlers()が失敗\n" );
 
         return nullptr;
     }
     auto &  eventHandlers = *eventHandlersUnique;
 
-    auto    titleUnique = gf::unique(
-        gf::newUtf32( TITLE )
+    auto    titleUnique = fg::unique(
+        fg::newUtf32( TITLE )
     );
     if( titleUnique.get() == nullptr ) {
-        std::printf( "gf::newUtf32()が失敗\n" );
+        std::printf( "fg::newUtf32()が失敗\n" );
 
         return nullptr;
     }
     auto &  title = *titleUnique;
 
-    auto    windowUnique = gf::unique(
-        gf::newWindow(
+    auto    windowUnique = fg::unique(
+        fg::newWindow(
             eventHandlers
             , title
             , WIDTH
@@ -45,7 +45,7 @@ gf::Window * newWindow(
         )
     );
     if( windowUnique.get() == nullptr ) {
-        std::printf( "gf::newWindow()が失敗\n" );
+        std::printf( "fg::newWindow()が失敗\n" );
 
         return nullptr;
     }
@@ -53,17 +53,17 @@ gf::Window * newWindow(
     return windowUnique.release();
 }
 
-GFEXPORT gf::Int main(
+FGEXPORT fg::Int main(
 )
 {
-    auto    windowUnique = gf::unique( newWindow() );
+    auto    windowUnique = fg::unique( newWindow() );
     if( windowUnique.get() == nullptr ) {
         return 1;
     }
     auto &  window = *windowUnique;
 
     while( true ) {
-        GfStringChar    buffer[ 1024 ];
+        fg::StringChar  buffer[ 1024 ];
         std::printf( "> " );
         if( std::fgets(
             buffer
@@ -75,15 +75,15 @@ GFEXPORT gf::Int main(
             break;
         }
 
-        auto    titleUnique = gf::unique( gf::newUtf32FromString( buffer ) );
+        auto    titleUnique = fg::unique( fg::newUtf32FromString( buffer ) );
         if( titleUnique.get() == nullptr ) {
-            std::printf( "gf::newUtf32FromString()が失敗\n" );
+            std::printf( "fg::newUtf32FromString()が失敗\n" );
 
             break;
         }
         const auto &    TITLE = *titleUnique;
 
-        gf::setTitle(
+        fg::setTitle(
             window
             , TITLE
         );

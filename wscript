@@ -6,8 +6,8 @@ from wscripts import demos
 
 import os.path
 
-APPNAME = 'gf4cppdemos'
-VERSION = '0.0.0'
+APPNAME = 'fg4cppdemos'
+VERSION = '0.1.0'
 
 out = common.BUILD_DIR
 
@@ -111,24 +111,24 @@ def _optionKey(
 
 def configure( _context ):
     _context.msg(
-        cmdoption.GF_HEADERS,
-        _context.options.gfheaders,
+        cmdoption.FG_HEADERS,
+        _context.options.fgheaders,
     )
     _context.msg(
-        cmdoption.GFPP_HEADERS,
-        _context.options.gfppheaders,
+        cmdoption.FGPP_HEADERS,
+        _context.options.fgppheaders,
     )
     _context.msg(
-        cmdoption.GF4CPP_HEADERS,
-        _context.options.gf4cppheaders,
+        cmdoption.FG4CPP_HEADERS,
+        _context.options.fg4cppheaders,
     )
     _context.msg(
-        cmdoption.GF_LIBPATH,
-        _context.options.gflibpath,
+        cmdoption.FG_LIBPATH,
+        _context.options.fglibpath,
     )
     _context.msg(
-        cmdoption.GF4CPP_LIBPATH,
-        _context.options.gf4cpplibpath,
+        cmdoption.FG4CPP_LIBPATH,
+        _context.options.fg4cpplibpath,
     )
     _context.msg(
         cmdoption.OS,
@@ -185,9 +185,9 @@ def _configureIncludes( _context ):
         os.path.abspath( i )
         for i in [
             common.INCLUDE_DIR,
-            _context.options.gfheaders,
-            _context.options.gfppheaders,
-            _context.options.gf4cppheaders,
+            _context.options.fgheaders,
+            _context.options.fgppheaders,
+            _context.options.fg4cppheaders,
         ]
     ]
 
@@ -202,8 +202,8 @@ def _configureLibpath( _context ):
     libpath = [
         os.path.abspath( i )
         for i in [
-            _context.options.gflibpath,
-            _context.options.gf4cpplibpath,
+            _context.options.fglibpath,
+            _context.options.fg4cpplibpath,
         ]
     ]
 

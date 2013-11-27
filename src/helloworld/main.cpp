@@ -1,9 +1,9 @@
-﻿#include "gf/util/export.h"
-#include "gfpp/common/primitives.h"
+﻿#include "fg/util/export.h"
+#include "fgpp/common/primitives.h"
 
 #include <cstdio>
 
-GFEXPORT gf::Int main(
+FGEXPORT fg::Int main(
 )
 {
     std::printf( "Hello, world!!\n" );

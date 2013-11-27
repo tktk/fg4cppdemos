@@ -1,9 +1,9 @@
-﻿#include "gf/util/export.h"
-#include "gf4cpp/window/eventhandlers.h"
-#include "gf4cpp/window/window.h"
-#include "gf4cpp/string/utf32.h"
-#include "gfpp/common/memory.h"
-#include "gfpp/common/primitives.h"
+﻿#include "fg/util/export.h"
+#include "fg4cpp/window/eventhandlers.h"
+#include "fg4cpp/window/window.h"
+#include "fg4cpp/string/utf32.h"
+#include "fgpp/common/memory.h"
+#include "fgpp/common/primitives.h"
 
 #include <cstdio>
 #include <mutex>
@@ -18,7 +18,7 @@ enum
 const auto  TITLE = U"window_setposition";
 
 void waitEnd(
-    const gf::Bool &            _ENDED
+    const fg::Bool &            _ENDED
     , std::mutex &              _mutex
     , std::condition_variable & _cond
 )
@@ -37,7 +37,7 @@ void waitEnd(
 }
 
 void notifyEnd(
-    gf::Bool &                  _ended
+    fg::Bool &                  _ended
     , std::mutex &              _mutex
     , std::condition_variable & _cond
 )
@@ -49,21 +49,21 @@ void notifyEnd(
     _cond.notify_one();
 }
 
-gf::WindowEventHandlers * newWindowEventHandlers(
-    gf::Bool &                  _ended
+fg::WindowEventHandlers * newWindowEventHandlers(
+    fg::Bool &                  _ended
     , std::mutex &              _mutex
     , std::condition_variable & _cond
 )
 {
-    auto    eventHandlersUnique = gf::unique( gf::newWindowEventHandlers() );
+    auto    eventHandlersUnique = fg::unique( fg::newWindowEventHandlers() );
     if( eventHandlersUnique.get() == nullptr ) {
-        std::printf( "gf::newWindowEventHandlers()が失敗\n" );
+        std::printf( "fg::newWindowEventHandlers()が失敗\n" );
 
         return nullptr;
     }
     auto &  eventHandlers = *eventHandlersUnique;
 
-    gf::setCloseEventHandler(
+    fg::setCloseEventHandler(
         eventHandlers
         , [
             &_ended
@@ -71,7 +71,7 @@ gf::WindowEventHandlers * newWindowEventHandlers(
             , &_cond
         ]
         (
-            gf::Window &
+            fg::Window &
         )
         {
             notifyEnd(
@@ -82,18 +82,18 @@ gf::WindowEventHandlers * newWindowEventHandlers(
         }
     );
 
-    gf::setMouseButtonEventHandler(
+    fg::setMouseButtonEventHandler(
         eventHandlers
         , [](
-            gf::Window &    _window
-            , gf::ULong     _index
-            , gf::Bool      _pressed
-            , gf::Int       _x
-            , gf::Int       _y
+            fg::Window &    _window
+            , fg::ULong     _index
+            , fg::Bool      _pressed
+            , fg::Int       _x
+            , fg::Int       _y
         )
         {
             std::printf(
-                "gf::Window button[ %llu, %s, %d x %d ]\n"
+                "fg::Window button[ %llu, %s, %d x %d ]\n"
                 , _index
                 , _pressed
                     ? "press"
@@ -107,12 +107,12 @@ gf::WindowEventHandlers * newWindowEventHandlers(
             }
 
             std::printf(
-                "gf::setPosition() [ %d x %d ]\n"
+                "fg::setPosition() [ %d x %d ]\n"
                 , _x
                 , _y
             );
 
-            gf::setPosition(
+            fg::setPosition(
                 _window
                 , _x
                 , _y
@@ -123,13 +123,13 @@ gf::WindowEventHandlers * newWindowEventHandlers(
     return eventHandlersUnique.release();
 }
 
-gf::Window * newWindow(
-    gf::Bool &                  _ended
+fg::Window * newWindow(
+    fg::Bool &                  _ended
     , std::mutex &              _mutex
     , std::condition_variable & _cond
 )
 {
-    auto    eventHandlersUnique = gf::unique(
+    auto    eventHandlersUnique = fg::unique(
         newWindowEventHandlers(
             _ended
             , _mutex
@@ -141,18 +141,18 @@ gf::Window * newWindow(
     }
     auto &  eventHandlers = *eventHandlersUnique;
 
-    auto    titleUnique = gf::unique(
-        gf::newUtf32( TITLE )
+    auto    titleUnique = fg::unique(
+        fg::newUtf32( TITLE )
     );
     if( titleUnique.get() == nullptr ) {
-        std::printf( "gf::newUtf32()が失敗\n" );
+        std::printf( "fg::newUtf32()が失敗\n" );
 
         return nullptr;
     }
     auto &  title = *titleUnique;
 
-    auto    windowUnique = gf::unique(
-        gf::newWindow(
+    auto    windowUnique = fg::unique(
+        fg::newWindow(
             eventHandlers
             , title
             , WIDTH
@@ -160,7 +160,7 @@ gf::Window * newWindow(
         )
     );
     if( windowUnique.get() == nullptr ) {
-        std::printf( "gf::newWindow()が失敗\n" );
+        std::printf( "fg::newWindow()が失敗\n" );
 
         return nullptr;
     }
@@ -168,14 +168,14 @@ gf::Window * newWindow(
     return windowUnique.release();
 }
 
-GFEXPORT gf::Int main(
+FGEXPORT fg::Int main(
 )
 {
-    gf::Bool                ended = false;
+    fg::Bool                ended = false;
     std::mutex              mutex;
     std::condition_variable cond;
 
-    auto    windowUnique = gf::unique(
+    auto    windowUnique = fg::unique(
         newWindow(
             ended
             , mutex

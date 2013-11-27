@@ -1,9 +1,9 @@
-﻿#include "gf/util/export.h"
-#include "gf4cpp/window/eventhandlers.h"
-#include "gf4cpp/window/window.h"
-#include "gf4cpp/string/utf32.h"
-#include "gfpp/common/memory.h"
-#include "gfpp/common/primitives.h"
+﻿#include "fg/util/export.h"
+#include "fg4cpp/window/eventhandlers.h"
+#include "fg4cpp/window/window.h"
+#include "fg4cpp/string/utf32.h"
+#include "fgpp/common/memory.h"
+#include "fgpp/common/primitives.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -19,7 +19,7 @@ enum
 const auto  TITLE = U"window_repaint";
 
 void waitEnd(
-    const gf::Bool &            _ENDED
+    const fg::Bool &            _ENDED
     , std::mutex &              _mutex
     , std::condition_variable & _cond
 )
@@ -38,7 +38,7 @@ void waitEnd(
 }
 
 void notifyEnd(
-    gf::Bool &                  _ended
+    fg::Bool &                  _ended
     , std::mutex &              _mutex
     , std::condition_variable & _cond
 )
@@ -51,12 +51,12 @@ void notifyEnd(
 }
 
 void repaint(
-    gf::Window &        _window
-    , const gf::Bool &  _PRESSED
-    , const gf::Int &   _X
-    , const gf::Int &   _Y
-    , gf::Int &         _startX
-    , gf::Int &         _startY
+    fg::Window &        _window
+    , const fg::Bool &  _PRESSED
+    , const fg::Int &   _X
+    , const fg::Int &   _Y
+    , fg::Int &         _startX
+    , fg::Int &         _startY
 )
 {
     if( _PRESSED ) {
@@ -72,14 +72,14 @@ void repaint(
     const auto  HEIGHT = std::abs( _Y - _startY ) + 1;
 
     std::printf(
-        "gf::repaint() [ %d x %d + %d + %d ]\n"
+        "fg::repaint() [ %d x %d + %d + %d ]\n"
         , WIDTH
         , HEIGHT
         , X
         , Y
     );
 
-    gf::repaint(
+    fg::repaint(
         _window
         , X
         , Y
@@ -89,38 +89,38 @@ void repaint(
 }
 
 void repaint(
-    gf::Window &        _window
-    , const gf::Bool &  _PRESSED
+    fg::Window &        _window
+    , const fg::Bool &  _PRESSED
 )
 {
     if( _PRESSED != false ) {
         return;
     }
 
-    std::printf( "gf::repaint()\n" );
+    std::printf( "fg::repaint()\n" );
 
-    gf::repaint(
+    fg::repaint(
         _window
     );
 }
 
-gf::WindowEventHandlers * newWindowEventHandlers(
-    gf::Int &                   _startX
-    , gf::Int &                 _startY
-    , gf::Bool &                _ended
+fg::WindowEventHandlers * newWindowEventHandlers(
+    fg::Int &                   _startX
+    , fg::Int &                 _startY
+    , fg::Bool &                _ended
     , std::mutex &              _mutex
     , std::condition_variable & _cond
 )
 {
-    auto    eventHandlersUnique = gf::unique( gf::newWindowEventHandlers() );
+    auto    eventHandlersUnique = fg::unique( fg::newWindowEventHandlers() );
     if( eventHandlersUnique.get() == nullptr ) {
-        std::printf( "gf::newWindowEventHandlers()が失敗\n" );
+        std::printf( "fg::newWindowEventHandlers()が失敗\n" );
 
         return nullptr;
     }
     auto &  eventHandlers = *eventHandlersUnique;
 
-    gf::setCloseEventHandler(
+    fg::setCloseEventHandler(
         eventHandlers
         , [
             &_ended
@@ -128,7 +128,7 @@ gf::WindowEventHandlers * newWindowEventHandlers(
             , &_cond
         ]
         (
-            gf::Window &
+            fg::Window &
         )
         {
             notifyEnd(
@@ -139,18 +139,18 @@ gf::WindowEventHandlers * newWindowEventHandlers(
         }
     );
 
-    gf::setPaintEventHandler(
+    fg::setPaintEventHandler(
         eventHandlers
         , [](
-            gf::Window &
-            , gf::Int       _x
-            , gf::Int       _y
-            , gf::Int       _width
-            , gf::Int       _height
+            fg::Window &
+            , fg::Int       _x
+            , fg::Int       _y
+            , fg::Int       _width
+            , fg::Int       _height
         )
         {
             std::printf(
-                "gf::Window paint[ %d x %d + %d + %d ]\n"
+                "fg::Window paint[ %d x %d + %d + %d ]\n"
                 , _width
                 , _height
                 , _x
@@ -159,22 +159,22 @@ gf::WindowEventHandlers * newWindowEventHandlers(
         }
     );
 
-    gf::setMouseButtonEventHandler(
+    fg::setMouseButtonEventHandler(
         eventHandlers
         , [
             &_startX
             , &_startY
         ]
         (
-            gf::Window &    _window
-            , gf::ULong     _index
-            , gf::Bool      _pressed
-            , gf::Int       _x
-            , gf::Int       _y
+            fg::Window &    _window
+            , fg::ULong     _index
+            , fg::Bool      _pressed
+            , fg::Int       _x
+            , fg::Int       _y
         )
         {
             std::printf(
-                "gf::Window button[ %llu, %s, %d x %d ]\n"
+                "fg::Window button[ %llu, %s, %d x %d ]\n"
                 , _index
                 , _pressed
                     ? "press"
@@ -211,15 +211,15 @@ gf::WindowEventHandlers * newWindowEventHandlers(
     return eventHandlersUnique.release();
 }
 
-gf::Window * newWindow(
-    gf::Int &                   _startX
-    , gf::Int &                 _startY
-    , gf::Bool &                _ended
+fg::Window * newWindow(
+    fg::Int &                   _startX
+    , fg::Int &                 _startY
+    , fg::Bool &                _ended
     , std::mutex &              _mutex
     , std::condition_variable & _cond
 )
 {
-    auto    eventHandlersUnique = gf::unique(
+    auto    eventHandlersUnique = fg::unique(
         newWindowEventHandlers(
             _startX
             , _startY
@@ -233,18 +233,18 @@ gf::Window * newWindow(
     }
     auto &  eventHandlers = *eventHandlersUnique;
 
-    auto    titleUnique = gf::unique(
-        gf::newUtf32( TITLE )
+    auto    titleUnique = fg::unique(
+        fg::newUtf32( TITLE )
     );
     if( titleUnique.get() == nullptr ) {
-        std::printf( "gf::newUtf32()が失敗\n" );
+        std::printf( "fg::newUtf32()が失敗\n" );
 
         return nullptr;
     }
     auto &  title = *titleUnique;
 
-    auto    windowUnique = gf::unique(
-        gf::newWindow(
+    auto    windowUnique = fg::unique(
+        fg::newWindow(
             eventHandlers
             , title
             , WIDTH
@@ -252,7 +252,7 @@ gf::Window * newWindow(
         )
     );
     if( windowUnique.get() == nullptr ) {
-        std::printf( "gf::newWindow()が失敗\n" );
+        std::printf( "fg::newWindow()が失敗\n" );
 
         return nullptr;
     }
@@ -260,17 +260,17 @@ gf::Window * newWindow(
     return windowUnique.release();
 }
 
-GFEXPORT gf::Int main(
+FGEXPORT fg::Int main(
 )
 {
-    gf::Int     startX;
-    gf::Int     startY;
+    fg::Int     startX;
+    fg::Int     startY;
 
-    gf::Bool                ended = false;
+    fg::Bool                ended = false;
     std::mutex              mutex;
     std::condition_variable cond;
 
-    auto    windowUnique = gf::unique(
+    auto    windowUnique = fg::unique(
         newWindow(
             startX
             , startY

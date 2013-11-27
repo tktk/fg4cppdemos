@@ -4,16 +4,16 @@ from . import common
 
 import os.path
 
-GF_HEADERS = 'gfheaders'
-GF_LIBPATH = 'gflibpath'
-_GF_DIR = 'gf'
+FG_HEADERS = 'fgheaders'
+FG_LIBPATH = 'fglibpath'
+_FG_DIR = 'fg'
 
-GFPP_HEADERS = 'gfppheaders'
-_GFPP_DIR = 'gfpp'
+FGPP_HEADERS = 'fgppheaders'
+_FGPP_DIR = 'fgpp'
 
-GF4CPP_HEADERS = 'gf4cppheaders'
-GF4CPP_LIBPATH = 'gf4cpplibpath'
-_GF4CPP_DIR = 'gf4cpp'
+FG4CPP_HEADERS = 'fg4cppheaders'
+FG4CPP_LIBPATH = 'fg4cpplibpath'
+_FG4CPP_DIR = 'fg4cpp'
 
 OS = 'os'
 
@@ -35,43 +35,43 @@ _TYPE_STRING = 'string'
 VALUE = 'value'
 
 OPTIONS = {
-    GF_HEADERS : {
+    FG_HEADERS : {
         TYPE : _TYPE_STRING,
         VALUE : os.path.join(
             '..',
-            _GF_DIR,
+            _FG_DIR,
             common.INCLUDE_DIR,
         ),
     },
-    GFPP_HEADERS : {
+    FGPP_HEADERS : {
         TYPE : _TYPE_STRING,
         VALUE : os.path.join(
             '..',
-            _GFPP_DIR,
+            _FGPP_DIR,
             common.INCLUDE_DIR,
         ),
     },
-    GF4CPP_HEADERS : {
+    FG4CPP_HEADERS : {
         TYPE : _TYPE_STRING,
         VALUE : os.path.join(
             '..',
-            _GF4CPP_DIR,
+            _FG4CPP_DIR,
             common.INCLUDE_DIR,
         ),
     },
-    GF_LIBPATH : {
+    FG_LIBPATH : {
         TYPE : _TYPE_STRING,
         VALUE : os.path.join(
             '..',
-            _GF_DIR,
+            _FG_DIR,
             common.BUILD_DIR,
         ),
     },
-    GF4CPP_LIBPATH : {
+    FG4CPP_LIBPATH : {
         TYPE : _TYPE_STRING,
         VALUE : os.path.join(
             '..',
-            _GF4CPP_DIR,
+            _FG4CPP_DIR,
             common.BUILD_DIR,
         ),
     },
