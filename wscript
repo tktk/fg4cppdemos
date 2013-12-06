@@ -181,7 +181,7 @@ def _setOsToEnv( _context ):
     _context.env[ cmdoption.OS ] = _context.options.os
 
 def _configureIncludes( _context ):
-    includes = [
+    INCLUDES = [
         os.path.abspath( i )
         for i in [
             common.INCLUDE_DIR,
@@ -193,13 +193,13 @@ def _configureIncludes( _context ):
 
     _context.msg(
         'includes',
-        includes,
+        INCLUDES,
     )
 
-    _context.env.INCLUDES = includes
+    _context.env.MY_INCLUDES = INCLUDES
 
 def _configureLibpath( _context ):
-    libpath = [
+    LIBPATH = [
         os.path.abspath( i )
         for i in [
             _context.options.fglibpath,
@@ -209,10 +209,11 @@ def _configureLibpath( _context ):
 
     _context.msg(
         'libpath',
-        libpath,
+        LIBPATH,
     )
 
-    _context.env.LIBPATH = libpath
+    _context.env.MY_LIBPATH = LIBPATH
+    _context.env.MY_RPATH = LIBPATH
 
 def _configureDefines( _context ):
     defines = []
@@ -230,7 +231,7 @@ def _configureDefines( _context ):
     )
 
     if len( defines ) > 0:
-        _context.env.DEFINES = defines
+        _context.env.MY_DEFINES = defines
 
 def _configureCxx( _context ):
     cxx = None
@@ -269,7 +270,7 @@ def _configureCxxflags(
     )
 
     if flags is not None:
-        _context.env.CXXFLAGS = flags
+        _context.env.MY_CXXFLAGS = flags
 
 def _configureLinkflags(
     _context,
@@ -284,7 +285,7 @@ def _configureLinkflags(
     )
 
     if flags is not None:
-        _context.env.LINKFLAGS = flags
+        _context.env.MY_LINKFLAGS = flags
 
 def _configureFlags(
     _context,
