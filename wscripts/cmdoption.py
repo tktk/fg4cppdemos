@@ -2,6 +2,8 @@
 
 from . import common
 
+from waflib import Utils
+
 import os.path
 
 FG_HEADERS = 'fgheaders'
@@ -16,28 +18,48 @@ FG4CPP_LIBPATH = 'fg4cpplibpath'
 _FG4CPP_DIR = 'fg4cpp'
 
 OS = 'os'
+OS_LINUX = 'linux'
+OS_WINDOWS = 'windows'
 
 BUILD = 'build'
 BUILD_DEBUG = 'debug'
 BUILD_RELEASE = 'release'
 
-CXX = 'cxx'
-CXX_CLANGXX = 'clang++'
-CXX_MSVC = 'msvc'
+CXXFLAGS_BASE = 'cxxflagsbase'
+CXXFLAGS_BASE_GXX = 'g++'
+CXXFLAGS_BASE_MSVC = 'msvc'
 
-FLAGS_BASE = 'flagsbase'
-CXXFLAGS = 'cxxflags'
-LINKFLAGS = 'linkflags'
+LINKFLAGS_BASE = 'linkflagsbase'
+LINKFLAGS_BASE_LD = 'ld'
+LINKFLAGS_BASE_MSVC = 'msvc'
 
 TYPE = 'type'
 _TYPE_STRING = 'string'
 
-VALUE = 'value'
+DEFAULT = 'default'
+
+def _defaultOs():
+    PLATFORM = Utils.unversioned_sys_platform()
+
+    if PLATFORM == 'linux':
+        return OS_LINUX
+    elif PLATFORM == 'win32':
+        return OS_WINDOWS
+
+    return None
+
+def _defaultValue( _VALUES ):
+    OS = _defaultOs()
+
+    if OS in _VALUES:
+        return _VALUES[ OS ]
+
+    return None
 
 OPTIONS = {
     FG_HEADERS : {
         TYPE : _TYPE_STRING,
-        VALUE : os.path.join(
+        DEFAULT : os.path.join(
             '..',
             _FG_DIR,
             common.INCLUDE_DIR,
@@ -45,7 +67,7 @@ OPTIONS = {
     },
     FGPP_HEADERS : {
         TYPE : _TYPE_STRING,
-        VALUE : os.path.join(
+        DEFAULT : os.path.join(
             '..',
             _FGPP_DIR,
             common.INCLUDE_DIR,
@@ -53,7 +75,7 @@ OPTIONS = {
     },
     FG4CPP_HEADERS : {
         TYPE : _TYPE_STRING,
-        VALUE : os.path.join(
+        DEFAULT : os.path.join(
             '..',
             _FG4CPP_DIR,
             common.INCLUDE_DIR,
@@ -61,7 +83,7 @@ OPTIONS = {
     },
     FG_LIBPATH : {
         TYPE : _TYPE_STRING,
-        VALUE : os.path.join(
+        DEFAULT : os.path.join(
             '..',
             _FG_DIR,
             common.BUILD_DIR,
@@ -69,7 +91,7 @@ OPTIONS = {
     },
     FG4CPP_LIBPATH : {
         TYPE : _TYPE_STRING,
-        VALUE : os.path.join(
+        DEFAULT : os.path.join(
             '..',
             _FG4CPP_DIR,
             common.BUILD_DIR,
@@ -78,27 +100,28 @@ OPTIONS = {
 
     OS : {
         TYPE : _TYPE_STRING,
-        VALUE : common.OS_LINUX,
+        DEFAULT : _defaultOs(),
     },
     BUILD : {
         TYPE : _TYPE_STRING,
-        VALUE : BUILD_DEBUG,
+        DEFAULT : BUILD_DEBUG,
     },
-
-    CXX : {
+    CXXFLAGS_BASE : {
         TYPE : _TYPE_STRING,
-        VALUE : None,
+        DEFAULT : _defaultValue(
+            {
+                OS_LINUX : CXXFLAGS_BASE_GXX,
+                OS_WINDOWS : CXXFLAGS_BASE_MSVC,
+            },
+        ),
     },
-    FLAGS_BASE : {
+    LINKFLAGS_BASE : {
         TYPE : _TYPE_STRING,
-        VALUE : None,
-    },
-    CXXFLAGS : {
-        TYPE : _TYPE_STRING,
-        VALUE : None,
-    },
-    LINKFLAGS : {
-        TYPE : _TYPE_STRING,
-        VALUE : None,
+        DEFAULT : _defaultValue(
+            {
+                OS_LINUX : LINKFLAGS_BASE_LD,
+                OS_WINDOWS : LINKFLAGS_BASE_MSVC,
+            },
+        ),
     },
 }
