@@ -15,6 +15,8 @@ from . import window_setposition
 from . import window_setsize
 from . import window_repaint
 
+from . import gl_simple
+
 def build( _context ):
     helloworld.build( _context )
 
@@ -30,3 +32,5 @@ def build( _context ):
     window_setposition.build( _context )
     window_setsize.build( _context )
     window_repaint.build( _context )
+
+    gl_simple.build( _context )
