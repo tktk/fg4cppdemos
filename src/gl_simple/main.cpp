@@ -11,7 +11,6 @@
 #include <cstdio>
 #include <mutex>
 #include <condition_variable>
-#include <utility>
 
 enum
 {
@@ -21,138 +20,60 @@ enum
 
 const auto  TITLE = U"gl_simple";
 
-struct Rect
-{
-    fg::Int x;
-    fg::Int y;
-    fg::Int width;
-    fg::Int height;
-
-    Rect(
-    )
-    {
-        this->reset();
-    }
-
-    Rect & operator=(
-        const Rect &
-    ) = default;
-
-    Rect & operator=(
-        Rect && _rect
-    )
-    {
-        *this = _rect;
-        _rect.reset();
-
-        return *this;
-    }
-
-    void reset(
-    )
-    {
-        this->width = 0;
-        this->height = 0;
-    }
-};
-
-fg::Bool moveRect(
-    Rect &                      _rect
-    , Rect &                    _newRect
-    , const fg::Bool &          _RUNNING
-    , std::mutex &              _mutex
-    , std::condition_variable & _cond
-)
-{
-    std::unique_lock< std::mutex >  lock( _mutex );
-
-    if( _newRect.width > 0 && _newRect.height > 0 ) {
-    } else if( _RUNNING ) {
-        _cond.wait( lock );
-    }
-
-    _rect = std::move( _newRect );
-
-    return _RUNNING;
-}
-
-void updateRange(
-    fg::Int &   _start
-    , fg::Int & _volume
-    , fg::Int   _newStart
-    , fg::Int   _newVolume
-)
-{
-    const auto  END = _start + _volume;
-    const auto  NEW_END = _newStart + _newVolume;
-
-    if( _newStart < _start ) {
-        _start = _newStart;
-        _volume = END - _start;
-    }
-
-    if( NEW_END > END ) {
-        _volume = NEW_END - _start;
-    }
-}
-
 void notifyEnd(
-    fg::Bool &                  _running
+    fg::Bool &                  _ended
     , std::mutex &              _mutex
     , std::condition_variable & _cond
 )
 {
     std::unique_lock< std::mutex >  lock( _mutex );
 
-    _running = false;
+    _ended = true;
 
     _cond.notify_one();
 }
 
 void notifyPaint(
-    Rect &                      _rect
+    fg::Bool &                  _existsInvalidateRect
     , std::mutex &              _mutex
     , std::condition_variable & _cond
-    , fg::Int                   _paintX
-    , fg::Int                   _paintY
-    , fg::Int                   _paintWidth
-    , fg::Int                   _paintHeight
 )
 {
-    auto &  x = _rect.x;
-    auto &  y = _rect.y;
-    auto &  width = _rect.width;
-    auto &  height = _rect.height;
-
     std::unique_lock< std::mutex >  lock( _mutex );
 
-    if( width == 0 || height == 0 ) {
-        width = _paintWidth;
-        height = _paintHeight;
-        x = _paintX;
-        y = _paintY;
-    } else {
-        updateRange(
-            x
-            , width
-            , _paintX
-            , _paintWidth
-        );
-
-        updateRange(
-            y
-            , height
-            , _paintY
-            , _paintHeight
-        );
-    }
+    _existsInvalidateRect = true;
 
     _cond.notify_one();
 }
 
+fg::Bool waitPaint(
+    const fg::Bool &            _ENDED
+    , fg::Bool &                _existsInvalidateRect
+    , std::mutex &              _mutex
+    , std::condition_variable & _cond
+)
+{
+    std::unique_lock< std::mutex >  lock( _mutex );
+
+    _cond.wait(
+        lock
+        , [
+            &_ENDED
+            , &_existsInvalidateRect
+        ]
+        {
+            return _ENDED || _existsInvalidateRect;
+        }
+    );
+
+    _existsInvalidateRect = false;
+
+    return _ENDED == false;
+}
+
 fg::WindowEventHandlers * newWindowEventHandlers(
-    Rect &                      _rect
-    , fg::Bool &                _running
+    fg::Bool &                  _ended
+    , fg::Bool &                _existsInvalidateRect
     , std::mutex &              _mutex
     , std::condition_variable & _cond
 )
@@ -168,7 +89,7 @@ fg::WindowEventHandlers * newWindowEventHandlers(
     fg::setCloseEventHandler(
         eventHandlers
         , [
-            &_running
+            &_ended
             , &_mutex
             , &_cond
         ]
@@ -177,7 +98,7 @@ fg::WindowEventHandlers * newWindowEventHandlers(
         )
         {
             notifyEnd(
-                _running
+                _ended
                 , _mutex
                 , _cond
             );
@@ -187,26 +108,22 @@ fg::WindowEventHandlers * newWindowEventHandlers(
     fg::setPaintEventHandler(
         eventHandlers
         , [
-            &_rect
+            &_existsInvalidateRect
             , &_mutex
             , &_cond
         ]
         (
-            fg::Window &    _window
-            , fg::Int       _paintX
-            , fg::Int       _paintY
-            , fg::Int       _paintWidth
-            , fg::Int       _paintHeight
+            fg::Window &
+            , fg::Int
+            , fg::Int
+            , fg::Int
+            , fg::Int
         )
         {
             notifyPaint(
-                _rect
+                _existsInvalidateRect
                 , _mutex
                 , _cond
-                , _paintX
-                , _paintY
-                , _paintWidth
-                , _paintHeight
             );
         }
     );
@@ -215,16 +132,16 @@ fg::WindowEventHandlers * newWindowEventHandlers(
 }
 
 fg::Window * newWindow(
-    Rect &                      _rect
-    , fg::Bool &                _running
+    fg::Bool &                  _ended
+    , fg::Bool &                _existsInvalidateRect
     , std::mutex &              _mutex
     , std::condition_variable & _cond
 )
 {
     auto    eventHandlersUnique = fg::unique(
         newWindowEventHandlers(
-            _rect
-            , _running
+            _ended
+            , _existsInvalidateRect
             , _mutex
             , _cond
         )
@@ -261,21 +178,38 @@ fg::Window * newWindow(
     return windowUnique.release();
 }
 
-void paint(
+void paintInit(
     fg::GLCurrent & _current
-    , const Rect &  _rect
 )
 {
-    //TODO
-    std::printf( "paint\n" );
-    fg::swapBuffers( _current );
+    fg::glClearColor(
+        _current
+        , 1
+        , 0
+        , 0
+        , 1
+    );
 }
 
 void paintLoop(
+    fg::GLCurrent & _current
+)
+{
+    std::printf( "paint\n" );
+
+    fg::glClear(
+        _current
+        , fg::GL_COLOR_BUFFER_BIT
+    );
+
+    fg::swapBuffers( _current );
+}
+
+fg::Bool paint(
     const fg::GLConfig &        _GL_CONFIG
     , fg::Window &              _window
-    , Rect &                    _rect
-    , const fg::Bool &          _RUNNING
+    , const fg::Bool &          _ENDED
+    , fg::Bool &                _existsInvalidateRect
     , std::mutex &              _mutex
     , std::condition_variable & _cond
 )
@@ -286,11 +220,11 @@ void paintLoop(
         )
     );
     if( contextUnique.get() == nullptr ) {
-        return;
+        std::printf( "fg::newGLContext()が失敗\n" );
+
+        return false;
     }
     auto &  context = *contextUnique;
-
-    Rect    rect;
 
     auto    currentUnique = fg::unique(
         fg::getOrNewGLCurrent(
@@ -299,47 +233,48 @@ void paintLoop(
         )
     );
     if( currentUnique.get() == nullptr ) {
-        return;
+        std::printf( "fg::getOrNewGLCurrent()が失敗\n" );
+
+        return false;
     }
     auto &  current = *currentUnique;
-        fg::getOrNewGLCurrent(
-            context
-            , _window
-        );
+
+    paintInit(
+        current
+    );
 
     while( true ) {
-        if( moveRect(
-            rect
-            , _rect
-            , _RUNNING
+        if( waitPaint(
+            _ENDED
+            , _existsInvalidateRect
             , _mutex
             , _cond
         ) == false ) {
             break;
         }
 
-        paint(
+        paintLoop(
             current
-            , rect
         );
     }
+
+    return true;
 }
 
 fg::Int fgMain(
     const fg::Args &    _ARGS
 )
 {
-    Rect    rect;
-
-    fg::Bool    running = true;
+    fg::Bool    ended = false;
+    fg::Bool    existsInvalidateRect = true;
 
     std::mutex              mutex;
     std::condition_variable cond;
 
     auto    windowUnique = fg::unique(
         newWindow(
-            rect
-            , running
+            ended
+            , existsInvalidateRect
             , mutex
             , cond
         )
@@ -351,17 +286,21 @@ fg::Int fgMain(
 
     const auto  GL_CONFIG = fg::getGLConfig( _ARGS );
     if( GL_CONFIG == nullptr ) {
+        std::printf( "fg::getGLConfig()が失敗\n" );
+
         return 1;
     }
 
-    paintLoop(
+    if( paint(
         *GL_CONFIG
         , window
-        , rect
-        , running
+        , ended
+        , existsInvalidateRect
         , mutex
         , cond
-    );
+    ) == false ) {
+        return 1;
+    }
 
     return 0;
 }
