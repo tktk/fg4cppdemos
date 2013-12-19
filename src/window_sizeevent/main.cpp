@@ -1,5 +1,6 @@
 ﻿#include "fg/util/export.h"
 #include "fg4cpp/window/closeevent.h"
+#include "fg4cpp/window/sizeevent.h"
 #include "fg4cpp/window/eventhandlers.h"
 #include "fg4cpp/window/window.h"
 #include "fg4cpp/string/utf32.h"
@@ -86,15 +87,16 @@ fg::WindowEventHandlers * newWindowEventHandlers(
     fg::setSizeEventHandler(
         eventHandlers
         , [](
-            fg::Window &
-            , fg::Int       _width
-            , fg::Int       _height
+            const fg::WindowSizeEvent & _EVENT
         )
         {
+            const auto  WIDTH = fg::getWidth( _EVENT );
+            const auto  HEIGHT = fg::getHeight( _EVENT );
+
             std::printf(
                 "fg::Window size[ %d x %d ]\n"
-                , _width
-                , _height
+                , WIDTH
+                , HEIGHT
             );
         }
     );
