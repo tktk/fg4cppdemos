@@ -1,6 +1,7 @@
 ﻿#include "fg/util/export.h"
-#include "fg4cpp/window/eventhandlers.h"
 #include "fg4cpp/window/closeevent.h"
+#include "fg4cpp/window/paintevent.h"
+#include "fg4cpp/window/eventhandlers.h"
 #include "fg4cpp/window/window.h"
 #include "fg4cpp/string/utf32.h"
 #include "fgpp/common/memory.h"
@@ -86,19 +87,20 @@ fg::WindowEventHandlers * newWindowEventHandlers(
     fg::setPaintEventHandler(
         eventHandlers
         , [](
-            fg::Window &
-            , fg::Int       _x
-            , fg::Int       _y
-            , fg::Int       _width
-            , fg::Int       _height
+            const fg::WindowPaintEvent &    _EVENT
         )
         {
+            const auto  WIDTH = fg::getWidth( _EVENT );
+            const auto  HEIGHT = fg::getHeight( _EVENT );
+            const auto  X = fg::getX( _EVENT );
+            const auto  Y = fg::getY( _EVENT );
+
             std::printf(
                 "fg::Window paint[ %d x %d + %d + %d ]\n"
-                , _width
-                , _height
-                , _x
-                , _y
+                , WIDTH
+                , HEIGHT
+                , X
+                , Y
             );
         }
     );
