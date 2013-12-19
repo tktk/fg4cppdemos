@@ -1,5 +1,6 @@
 ﻿#include "fg/util/export.h"
 #include "fg4cpp/window/eventhandlers.h"
+#include "fg4cpp/window/closeevent.h"
 #include "fg4cpp/window/window.h"
 #include "fg4cpp/string/utf32.h"
 #include "fgpp/common/memory.h"
@@ -71,7 +72,7 @@ fg::WindowEventHandlers * newWindowEventHandlers(
             , &_cond
         ]
         (
-            fg::Window &
+            const fg::WindowCloseEvent &
         )
         {
             notifyEnd(
