@@ -1,5 +1,6 @@
 ﻿#include "fg/util/export.h"
 #include "fg4cpp/window/closeevent.h"
+#include "fg4cpp/window/keyevent.h"
 #include "fg4cpp/window/eventhandlers.h"
 #include "fg4cpp/window/window.h"
 #include "fg4cpp/string/utf32.h"
@@ -87,17 +88,16 @@ fg::WindowEventHandlers * newWindowEventHandlers(
     fg::setKeyEventHandler(
         eventHandlers
         , [](
-            fg::Window &
-            , fg::Key               _key
-            , const fg::Utf32Char * _charPtr
-            , fg::Bool              _pressed
+            const fg::WindowKeyEvent &  _EVENT
         )
         {
+            const auto  CHAR_PTR = fg::getCharPtr( _EVENT );
+
             fg::Unique< fg::String >::type  charStringUnique;
-            if( _charPtr != nullptr ) {
+            if( CHAR_PTR != nullptr ) {
                 charStringUnique.reset(
                     fg::newStringFromUnicode(
-                        _charPtr
+                        CHAR_PTR
                         , 1
                     )
                 );
@@ -109,13 +109,16 @@ fg::WindowEventHandlers * newWindowEventHandlers(
                 }
             }
 
+            const auto  KEY = fg::getKey( _EVENT );
+            const auto  PRESSED = fg::getPressed( _EVENT );
+
             std::printf(
                 "fg::Window key[ 0x%x, '%s', %s ]\n"
-                , _key
+                , KEY
                 , charStringUnique.get() != nullptr
                     ? fg::getPtr( *charStringUnique )
                     : ""
-                , _pressed
+                , PRESSED
                     ? "press"
                     : "release"
             );
