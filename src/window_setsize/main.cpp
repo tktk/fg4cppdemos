@@ -1,6 +1,7 @@
 ﻿#include "fg/util/export.h"
 #include "fg4cpp/window/closeevent.h"
 #include "fg4cpp/window/sizeevent.h"
+#include "fg4cpp/window/mousebuttonevent.h"
 #include "fg4cpp/window/eventhandlers.h"
 #include "fg4cpp/window/window.h"
 #include "fg4cpp/string/utf32.h"
@@ -104,29 +105,31 @@ fg::WindowEventHandlers * newWindowEventHandlers(
     fg::setMouseButtonEventHandler(
         eventHandlers
         , [](
-            fg::Window &    _window
-            , fg::ULong     _index
-            , fg::Bool      _pressed
-            , fg::Int       _x
-            , fg::Int       _y
+            const fg::WindowMouseButtonEvent &  _EVENT
         )
         {
+            auto &      window = fg::getSource( _EVENT );
+            const auto  INDEX = fg::getIndex( _EVENT );
+            const auto  PRESSED = fg::getPressed( _EVENT );
+            const auto  X = fg::getX( _EVENT );
+            const auto  Y = fg::getY( _EVENT );
+
             std::printf(
                 "fg::Window button[ %llu, %s, %d x %d ]\n"
-                , _index
-                , _pressed
+                , INDEX
+                , PRESSED
                     ? "press"
                     : "release"
-                , _x
-                , _y
+                , X
+                , Y
             );
 
-            if( _pressed != false ) {
+            if( PRESSED != false ) {
                 return;
             }
 
-            const auto  WIDTH = _x + 1;
-            const auto  HEIGHT = _y + 1;
+            const auto  WIDTH = X + 1;
+            const auto  HEIGHT = Y + 1;
 
             std::printf(
                 "fg::setSize() [ %d x %d ]\n"
@@ -135,7 +138,7 @@ fg::WindowEventHandlers * newWindowEventHandlers(
             );
 
             fg::setSize(
-                _window
+                window
                 , WIDTH
                 , HEIGHT
             );

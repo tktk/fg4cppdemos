@@ -1,5 +1,6 @@
 ﻿#include "fg/util/export.h"
 #include "fg4cpp/window/closeevent.h"
+#include "fg4cpp/window/mousebuttonevent.h"
 #include "fg4cpp/window/eventhandlers.h"
 #include "fg4cpp/window/window.h"
 #include "fg4cpp/string/utf32.h"
@@ -86,16 +87,14 @@ fg::WindowEventHandlers * newWindowEventHandlers(
     fg::setMouseButtonEventHandler(
         eventHandlers
         , [](
-            fg::Window &    _window
-            , fg::ULong
-            , fg::Bool
-            , fg::Int
-            , fg::Int
+            const fg::WindowMouseButtonEvent &  _EVENT
         )
         {
             std::printf( "fg::close()\n" );
 
-            fg::close( _window );
+            auto &  window = fg::getSource( _EVENT );
+
+            fg::close( window );
         }
     );
 

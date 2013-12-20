@@ -1,5 +1,6 @@
 ﻿#include "fg/util/export.h"
 #include "fg4cpp/window/closeevent.h"
+#include "fg4cpp/window/mousebuttonevent.h"
 #include "fg4cpp/window/eventhandlers.h"
 #include "fg4cpp/window/window.h"
 #include "fg4cpp/string/utf32.h"
@@ -86,37 +87,39 @@ fg::WindowEventHandlers * newWindowEventHandlers(
     fg::setMouseButtonEventHandler(
         eventHandlers
         , [](
-            fg::Window &    _window
-            , fg::ULong     _index
-            , fg::Bool      _pressed
-            , fg::Int       _x
-            , fg::Int       _y
+            const fg::WindowMouseButtonEvent &  _EVENT
         )
         {
+            auto &      window = fg::getSource( _EVENT );
+            const auto  INDEX = fg::getIndex( _EVENT );
+            const auto  PRESSED = fg::getPressed( _EVENT );
+            const auto  X = fg::getX( _EVENT );
+            const auto  Y = fg::getY( _EVENT );
+
             std::printf(
                 "fg::Window button[ %llu, %s, %d x %d ]\n"
-                , _index
-                , _pressed
+                , INDEX
+                , PRESSED
                     ? "press"
                     : "release"
-                , _x
-                , _y
+                , X
+                , Y
             );
 
-            if( _pressed != false ) {
+            if( PRESSED != false ) {
                 return;
             }
 
             std::printf(
                 "fg::setPosition() [ %d x %d ]\n"
-                , _x
-                , _y
+                , X
+                , Y
             );
 
             fg::setPosition(
-                _window
-                , _x
-                , _y
+                window
+                , X
+                , Y
             );
         }
     );
