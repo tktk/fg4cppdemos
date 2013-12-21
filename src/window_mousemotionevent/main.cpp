@@ -1,5 +1,6 @@
 ﻿#include "fg/util/export.h"
 #include "fg4cpp/window/closeevent.h"
+#include "fg4cpp/window/mousemotionevent.h"
 #include "fg4cpp/window/eventhandlers.h"
 #include "fg4cpp/window/window.h"
 #include "fg4cpp/string/utf32.h"
@@ -86,15 +87,16 @@ fg::WindowEventHandlers * newWindowEventHandlers(
     fg::setMouseMotionEventHandler(
         eventHandlers
         , [](
-            fg::Window &
-            , fg::Int       _x
-            , fg::Int       _y
+            const fg::WindowMouseMotionEvent &  _EVENT
         )
         {
+            const auto  X = fg::getX( _EVENT );
+            const auto  Y = fg::getY( _EVENT );
+
             std::printf(
                 "fg::Window motion[ %d, %d ]\n"
-                , _x
-                , _y
+                , X
+                , Y
             );
         }
     );
