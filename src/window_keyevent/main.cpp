@@ -1,4 +1,7 @@
 ﻿#include "fg/util/export.h"
+#include "fgpp/def/main/main.h"
+#include "fg/def/main/main.h"
+#include "fg4cpp/def/main/args.h"
 #include "fg4cpp/window/closeevent.h"
 #include "fg4cpp/window/keyevent.h"
 #include "fg4cpp/window/eventhandlers.h"
@@ -6,7 +9,6 @@
 #include "fg4cpp/string/utf32.h"
 #include "fg4cpp/string/string.h"
 #include "fgpp/common/memory.h"
-#include "fgpp/common/primitives.h"
 
 #include <cstdio>
 #include <mutex>
@@ -173,7 +175,8 @@ fg::Window * newWindow(
     return windowUnique.release();
 }
 
-FGEXPORT fg::Int main(
+fg::Int fgMain(
+    const fg::Args &
 )
 {
     fg::Bool                ended = false;
@@ -198,4 +201,13 @@ FGEXPORT fg::Int main(
     );
 
     return 0;
+}
+
+FGEXPORT FgInt fgMain(
+    const FgArgs *  _ARGS
+)
+{
+    return fgMain(
+        fg::toFgpp( *_ARGS )
+    );
 }
