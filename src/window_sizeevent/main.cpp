@@ -2,7 +2,6 @@
 #include "fgpp/def/main/main.h"
 #include "fg/def/main/main.h"
 #include "fg4cpp/def/main/args.h"
-#include "fg4cpp/window/closeevent.h"
 #include "fg4cpp/window/sizeevent.h"
 #include "fg4cpp/window/eventhandlers.h"
 #include "fg4cpp/window/window.h"

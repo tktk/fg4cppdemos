@@ -5,8 +5,6 @@
 #include "fg4cpp/gl/config.h"
 #include "fg4cpp/gl/context.h"
 #include "fg4cpp/gl/gl.h"
-#include "fg4cpp/window/closeevent.h"
-#include "fg4cpp/window/paintevent.h"
 #include "fg4cpp/window/eventhandlers.h"
 #include "fg4cpp/window/window.h"
 #include "fg4cpp/string/utf32.h"
