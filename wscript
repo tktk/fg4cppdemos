@@ -7,7 +7,7 @@ from wscripts import demos
 import os.path
 
 APPNAME = 'fg4cppdemos'
-VERSION = '0.2.0'
+VERSION = '0.3.0'
 
 out = common.BUILD_DIR
 
