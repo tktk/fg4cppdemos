@@ -1,12 +1,12 @@
 ﻿#include "fg/util/export.h"
 #include "fgpp/def/main/main.h"
 #include "fg/def/main/main.h"
-#include "fg4cpp/main/args.h"
+#include "fg4cpp/def/main/args.h"
 
 #include <cstdio>
 
 fg::Int fgMain(
-    fg::Args &
+    const fg::Args &
 )
 {
     std::printf( "Hello, world!!\n" );
@@ -16,10 +16,10 @@ fg::Int fgMain(
 
 //FIXME
 FGEXPORT FgInt fgMain(
-    FgArgs *    _args
+    const FgArgs *  _ARGS
 )
 {
-    fgMain(
-        fg::toFgpp( *_args )
+    return fgMain(
+        fg::toFgpp( *_ARGS )
     );
 }
