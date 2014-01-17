@@ -25,7 +25,7 @@ def _generateFlags(
     }
 
 _CXXFLAGS_BASES = {
-    cmdoption.CXXFLAGS_BASE_GXX : _generateFlags(
+    cmdoption.COMPILER_TYPE_CLANG : _generateFlags(
         common = [
             '-Wall',
             '-fno-rtti',
@@ -40,7 +40,7 @@ _CXXFLAGS_BASES = {
             '-O2',
         ],
     ),
-    cmdoption.CXXFLAGS_BASE_MSVC : _generateFlags(
+    cmdoption.COMPILER_TYPE_MSVC : _generateFlags(
         common = [
             '/Wall',
             '/nologo',
@@ -60,12 +60,12 @@ _CXXFLAGS_BASES = {
 }
 
 _LINKFLAGS_BASES = {
-    cmdoption.LINKFLAGS_BASE_LD : _generateFlags(
+    cmdoption.LINKER_TYPE_LD : _generateFlags(
         debug = [
             '-rdynamic',
         ],
     ),
-    cmdoption.LINKFLAGS_BASE_MSVC : _generateFlags(
+    cmdoption.LINKER_TYPE_MSVC : _generateFlags(
         common = [
             '/NOLOGO',
             '/DYNAMICBASE',
@@ -80,17 +80,17 @@ _LINKFLAGS_BASES = {
 }
 
 _DEFINES = {
-    cmdoption.OS_LINUX : _generateFlags(
+    cmdoption.COMPILER_TYPE_CLANG : _generateFlags(
         common = [
-            'OS_LINUX',
+            'COMPILER_TYPE_CLANG',
         ],
         debug = [
             'DEBUG',
         ],
     ),
-    cmdoption.OS_WINDOWS : _generateFlags(
+    cmdoption.COMPILER_TYPE_MSVC : _generateFlags(
         common = [
-            'OS_WINDOWS',
+            'COMPILER_TYPE_MSVC',
         ],
         debug = [
             'DEBUG',
@@ -115,12 +115,13 @@ def _optionKey(
 
 def configure( _context ):
     _configureBuild( _context )
-    _configureOs( _context )
+    _configureCompiler( _context )
+    _configureLinker( _context )
+    _configureCxxflags( _context )
+    _configureLinkflags( _context )
     _configureIncludes( _context )
     _configureLibpath( _context )
     _configureDefines( _context )
-    _configureCxxflags( _context )
-    _configureLinkflags( _context )
 
     _context.load( 'compiler_cxx' )
 
@@ -139,15 +140,64 @@ def _configureBuild( _context ):
 
     _context.fatal( '非対応のビルドタイプ' )
 
-def _configureOs( _context ):
-    OS = _context.options.os
+def _configureCompiler( _context ):
+    COMPILER_TYPE = _context.options.compilertype
 
     _context.msg(
-        cmdoption.OS,
-        OS,
+        cmdoption.COMPILER_TYPE,
+        COMPILER_TYPE,
     )
 
-    _context.env.MY_OS = OS
+    _context.env.MY_COMPILER_TYPE = COMPILER_TYPE
+
+def _configureLinker( _context ):
+    LINKER_TYPE = _context.options.linkertype
+
+    _context.msg(
+        cmdoption.LINKER_TYPE,
+        LINKER_TYPE,
+    )
+
+    _context.env.MY_LINKER_TYPE = LINKER_TYPE
+
+def _configureCxxflags( _context ):
+    CXXFLAGS = _configureFlags(
+        _context,
+        _context.env.MY_COMPILER_TYPE,
+        _CXXFLAGS_BASES,
+    )
+
+    _context.msg(
+        'cxxflags',
+        CXXFLAGS,
+    )
+
+    _context.env.MY_CXXFLAGS = CXXFLAGS
+
+def _configureLinkflags( _context ):
+    LINKFLAGS = _configureFlags(
+        _context,
+        _context.env.MY_LINKER_TYPE,
+        _LINKFLAGS_BASES,
+    )
+
+    _context.msg(
+        'linkflags',
+        LINKFLAGS,
+    )
+
+    _context.env.MY_LINKFLAGS = LINKFLAGS
+
+def _configureFlags(
+    _context,
+    _FLAGS_BASE,
+    _FLAGS_BASES,
+):
+    flags = None
+    if _FLAGS_BASE in _FLAGS_BASES:
+        flags = _FLAGS_BASES[ _FLAGS_BASE ][ _context.options.build ]
+
+    return flags
 
 def _configureIncludes( _context ):
     FG_HEADERS = _context.options.fgheaders
@@ -221,9 +271,9 @@ def _configureLibpath( _context ):
 
 def _configureDefines( _context ):
     defines = None
-    OS = _context.env.MY_OS
-    if OS in _DEFINES:
-        defines = _DEFINES[ OS ][ _context.options.build ]
+    COMPILER_TYPE = _context.env.MY_COMPILER_TYPE
+    if COMPILER_TYPE in _DEFINES:
+        defines = _DEFINES[ COMPILER_TYPE ][ _context.options.build ]
 
     _context.msg(
         'defines',
@@ -231,59 +281,6 @@ def _configureDefines( _context ):
     )
 
     _context.env.MY_DEFINES = defines
-
-def _configureCxxflags( _context ):
-    CXXFLAGS_BASE = _context.options.cxxflagsbase
-
-    _context.msg(
-        cmdoption.CXXFLAGS_BASE,
-        CXXFLAGS_BASE,
-    )
-
-    CXXFLAGS = _configureFlags(
-        _context,
-        CXXFLAGS_BASE,
-        _CXXFLAGS_BASES,
-    )
-
-    _context.msg(
-        'cxxflags',
-        CXXFLAGS,
-    )
-
-    _context.env.MY_CXXFLAGS = CXXFLAGS
-
-def _configureLinkflags( _context ):
-    LINKFLAGS_BASE = _context.options.linkflagsbase
-
-    _context.msg(
-        cmdoption.LINKFLAGS_BASE,
-        LINKFLAGS_BASE,
-    )
-
-    LINKFLAGS = _configureFlags(
-        _context,
-        LINKFLAGS_BASE,
-        _LINKFLAGS_BASES,
-    )
-
-    _context.msg(
-        'linkflags',
-        LINKFLAGS,
-    )
-
-    _context.env.MY_LINKFLAGS = LINKFLAGS
-
-def _configureFlags(
-    _context,
-    _FLAGS_BASE,
-    _FLAGS_BASES,
-):
-    flags = None
-    if _FLAGS_BASE in _FLAGS_BASES:
-        flags = _FLAGS_BASES[ _FLAGS_BASE ][ _context.options.build ]
-
-    return flags
 
 def build( _context ):
     demos.build( _context )
